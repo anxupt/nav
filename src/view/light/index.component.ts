@@ -1,4 +1,3 @@
-// @ts-nocheck
 // Copyright @ 2018-present xiejiahe. All rights reserved. MIT license.
 // See https://github.com/xjh22222228/nav
 
@@ -12,6 +11,7 @@ import {
   setWebsiteList,
   toggleCollapseAll,
   matchCurrentList,
+  getOverIndex,
 } from 'src/utils'
 import { isLogin } from 'src/utils/user'
 import { websiteList, settings } from 'src/store'
@@ -31,6 +31,8 @@ export default class LightComponent {
   isLogin = isLogin
   sliceMax = 1
   settings = settings
+  overIndex = Number.MAX_SAFE_INTEGER
+  searchKeyword = ''
 
   ngOnInit() {
     randomBgImg()
@@ -39,6 +41,7 @@ export default class LightComponent {
       const { id, page, q } = queryString()
       this.page = page
       this.id = id
+      this.searchKeyword = q
       this.sliceMax = 1
       if (q) {
         this.currentList = fuzzySearch(this.websiteList, q)
@@ -49,6 +52,14 @@ export default class LightComponent {
         this.sliceMax = Number.MAX_SAFE_INTEGER
       }, 100)
     })
+  }
+
+  trackByItem(a: any, item: any) {
+    return item.title
+  }
+
+  trackByItemWeb(a: any, item: any) {
+    return item.id
   }
 
   collapsed() {
@@ -82,7 +93,17 @@ export default class LightComponent {
     })
   }
 
-  ngAfterViewInit() {}
+  ngAfterViewInit() {
+    if (this.settings.lightOverType === 'ellipsis') {
+      queueMicrotask(() => {
+        const overIndex = getOverIndex('.top-nav .over-item')
+        if (this.overIndex === overIndex) {
+          return
+        }
+        this.overIndex = overIndex
+      })
+    }
+  }
 
   onCollapse = (item: any, index: number) => {
     item.collapsed = !item.collapsed

@@ -1,55 +1,55 @@
-// @ts-nocheck
 // Copyright @ 2018-present xiejiahe. All rights reserved. MIT license.
 // See https://github.com/xjh22222228/nav
 
-import { Component, OnInit, Output, EventEmitter } from '@angular/core'
+import { Component, Output, EventEmitter } from '@angular/core'
 import {
-  getLogoUrl,
+  getWebInfo,
   getTextContent,
   updateByWeb,
   queryString,
   setWebsiteList,
 } from 'src/utils'
 import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms'
-import { ITagProp, IWebProps } from 'src/types'
+import { IWebProps } from 'src/types'
 import { NzMessageService } from 'ng-zorro-antd/message'
-import { NzNotificationService } from 'ng-zorro-antd/notification'
-import * as __tag from '../../../data/tag.json'
-import { createFile } from 'src/services'
+import { createFile, saveUserCollect } from 'src/services'
 import { $t } from 'src/locale'
-import { settings, websiteList } from 'src/store'
+import { settings, websiteList, tagList, tagMap } from 'src/store'
 import event from 'src/utils/mitt'
-
-const tagMap: ITagProp = (__tag as any).default
-const tagKeys = Object.keys(tagMap)
+import { isLogin } from 'src/utils/user'
 
 @Component({
   selector: 'app-create-web',
   templateUrl: './index.component.html',
   styleUrls: ['./index.component.scss'],
 })
-export class CreateWebComponent implements OnInit {
+export class CreateWebComponent {
   @Output() onOk = new EventEmitter()
 
   $t = $t
+  isLogin: boolean = isLogin
   validateForm!: FormGroup
   iconUrl = ''
-  tags = tagKeys
+  tagList = tagList
   uploading = false
+  getting = false
   settings = settings
   showModal = false
   detail: any = null
   oneIndex: number | undefined
   twoIndex: number | undefined
   threeIndex: number | undefined
+  callback: Function = () => {}
 
-  constructor(
-    private fb: FormBuilder,
-    private message: NzMessageService,
-    private notification: NzNotificationService
-  ) {
-    event.on('CREATE_WEB', (props) => {
+  constructor(private fb: FormBuilder, private message: NzMessageService) {
+    event.on('CREATE_WEB', (props: any) => {
       this.open(this, props)
+    })
+    event.on('SET_CREATE_WEB', (props: any) => {
+      for (const k in props) {
+        // @ts-ignore
+        this[k] = props[k]
+      }
     })
     this.validateForm = this.fb.group({
       title: ['', [Validators.required]],
@@ -59,6 +59,7 @@ export class CreateWebComponent implements OnInit {
       rate: [5],
       icon: [''],
       desc: [''],
+      index: [''],
       urlArr: this.fb.array([]),
     })
   }
@@ -68,13 +69,15 @@ export class CreateWebComponent implements OnInit {
   }
 
   open(
-    ctx,
-    props: {
-      detail: IWebProps | null
-      oneIndex: number | undefined
-      twoIndex: number | undefined
-      threeIndex: number | undefined
-    } = {}
+    ctx: this,
+    props:
+      | {
+          detail: IWebProps | null
+          oneIndex: number | undefined
+          twoIndex: number | undefined
+          threeIndex: number | undefined
+        }
+      | Record<string, any> = {}
   ) {
     const detail = props.detail
     ctx.detail = detail
@@ -84,6 +87,7 @@ export class CreateWebComponent implements OnInit {
     ctx.threeIndex = props.threeIndex
     this.validateForm.get('title')!.setValue(getTextContent(detail?.name))
     this.validateForm.get('desc')!.setValue(getTextContent(detail?.desc))
+    this.validateForm.get('index')!.setValue(detail?.index ?? '')
     this.validateForm.get('icon')!.setValue(detail?.icon || '')
     this.validateForm.get('url')!.setValue(detail?.url || '')
     this.validateForm.get('top')!.setValue(detail?.top ?? false)
@@ -92,9 +96,11 @@ export class CreateWebComponent implements OnInit {
     if (detail) {
       if (typeof detail.urls === 'object') {
         for (let k in detail.urls) {
-          this.validateForm.get('urlArr').push(
+          // @ts-ignore
+          this.validateForm?.get('urlArr').push?.(
             this.fb.group({
-              name: k,
+              id: Number(k),
+              name: tagMap[k]?.name ?? '',
               url: detail.urls[k],
             })
           )
@@ -104,6 +110,7 @@ export class CreateWebComponent implements OnInit {
   }
 
   onClose() {
+    // @ts-ignore
     this.validateForm.get('urlArr').controls = []
     this.validateForm.reset()
     this.showModal = false
@@ -112,54 +119,47 @@ export class CreateWebComponent implements OnInit {
     this.oneIndex = undefined
     this.twoIndex = undefined
     this.threeIndex = undefined
+    this.uploading = false
+    this.callback = Function
   }
 
-  async onUrlBlur(e) {
-    const res = await getLogoUrl(e.target?.value)
-    if (res) {
-      this.iconUrl = res as string
+  async onUrlBlur(e: any) {
+    const url = e.target?.value
+    if (!url) {
+      return
+    }
+    this.getting = true
+    const res = await getWebInfo(url)
+    if (res['url'] != null) {
+      this.iconUrl = res['url']
       this.validateForm.get('icon')!.setValue(this.iconUrl)
     }
-  }
-
-  onIconFocus() {
-    document.addEventListener('paste', this.handlePasteImage)
-  }
-
-  onIconBlur(e) {
-    document.removeEventListener('paste', this.handlePasteImage)
-    this.iconUrl = e.target.value
+    if (res['title'] != null) {
+      this.validateForm.get('title')!.setValue(res['title'])
+    }
+    if (res['description'] != null) {
+      this.validateForm.get('desc')!.setValue(res['description'])
+    }
+    if (res['status'] === false) {
+      this.message.error('自动抓取失败，请手动写入')
+    }
+    this.getting = false
   }
 
   addMoreUrl() {
+    // @ts-ignore
     this.validateForm.get('urlArr').push(
       this.fb.group({
+        id: '',
         name: '',
         url: '',
       })
     )
   }
 
-  lessMoreUrl(idx) {
+  lessMoreUrl(idx: number) {
+    // @ts-ignore
     this.validateForm.get('urlArr').removeAt(idx)
-  }
-
-  handlePasteImage = (event) => {
-    const items = event.clipboardData.items
-    let file = null
-
-    if (items.length) {
-      for (let i = 0; i < items.length; i++) {
-        if (items[i].type.startsWith('image')) {
-          file = items[i].getAsFile()
-          break
-        }
-      }
-    }
-
-    if (file) {
-      this.handleUploadImage(file)
-    }
   }
 
   handleUploadImage(file: File) {
@@ -183,19 +183,13 @@ export class CreateWebComponent implements OnInit {
           that.validateForm.get('icon')!.setValue(path)
           that.message.success($t('_uploadSuccess'))
         })
-        .catch((res) => {
-          that.notification.error(
-            `${$t('_error')}: ${res?.response?.status ?? 401}`,
-            `${$t('_uploadFail')}：${res.message || ''}`
-          )
-        })
         .finally(() => {
           that.uploading = false
         })
     }
   }
 
-  onChangeFile(e) {
+  onChangeFile(e: any) {
     const { files } = e.target
     if (files.length <= 0) return
     const file = files[0]
@@ -206,28 +200,24 @@ export class CreateWebComponent implements OnInit {
     this.handleUploadImage(file)
   }
 
-  handleCancel() {
-    this.onCancel.emit()
-  }
-
-  handleOk() {
+  async handleOk() {
     for (const i in this.validateForm.controls) {
       this.validateForm.controls[i].markAsDirty()
       this.validateForm.controls[i].updateValueAndValidity()
     }
 
-    const createdAt = new Date().toISOString()
-    let urls = {}
-    let { title, icon, url, top, ownVisible, rate, desc } =
+    const createdAt = new Date().toString()
+    let urls: Record<string, any> = {}
+    let { title, icon, url, top, ownVisible, rate, desc, index } =
       this.validateForm.value
 
     if (!title || !url) return
 
     title = title.trim()
     const urlArr = this.validateForm.get('urlArr')?.value || []
-    urlArr.forEach((item) => {
-      if (item.name) {
-        urls[item.name] = item.url
+    urlArr.forEach((item: any) => {
+      if (item.id != null) {
+        urls[item.id] = item.url
       }
     })
 
@@ -238,6 +228,7 @@ export class CreateWebComponent implements OnInit {
       rate: rate ?? 5,
       desc: desc || '',
       top: top ?? false,
+      index,
       ownVisible: ownVisible ?? false,
       icon,
       url,
@@ -251,7 +242,7 @@ export class CreateWebComponent implements OnInit {
           name: getTextContent(this.detail.name),
           desc: getTextContent(this.detail.desc),
         },
-        payload
+        payload as IWebProps
       )
       if (ok) {
         this.message.success($t('_modifySuccess'))
@@ -263,19 +254,42 @@ export class CreateWebComponent implements OnInit {
         const { page, id } = queryString()
         const oneIndex = this.oneIndex ?? page
         const twoIndex = this.twoIndex ?? id
-        const threeIndex = this.threeIndex
+        const threeIndex = this.threeIndex as number
         const w = websiteList[oneIndex].nav[twoIndex].nav[threeIndex].nav
-        const exists = w.some((item) => item.name === payload.name)
+        const exists = w.some((item: any) => item.name === payload.name)
         if (exists) {
           return this.message.error(`${$t('_repeatAdd')} "${payload.name}"`)
         }
-        w.unshift(payload)
-        setWebsiteList(websiteList)
-        this.message.success($t('_addSuccess'))
-      } catch (error) {
+        this.uploading = true
+        if (this.isLogin) {
+          w.unshift(payload as IWebProps)
+          setWebsiteList(websiteList)
+          this.message.success($t('_addSuccess'))
+        } else if (this.settings.allowCollect) {
+          const res = await saveUserCollect({
+            email: this.settings.email,
+            data: {
+              ...payload,
+              extra: {
+                type: 'create',
+                oneName: websiteList[oneIndex].title,
+                twoName: websiteList[oneIndex].nav[twoIndex].title,
+                threeName:
+                  websiteList[oneIndex].nav[twoIndex].nav[threeIndex].title,
+              },
+            },
+          })
+          if (res.data.success === false) {
+            this.message.error(res.data.message)
+          } else {
+            this.message.error($t('_waitHandle'))
+          }
+        }
+      } catch (error: any) {
         this.message.error(error.message)
       }
     }
+    this.callback()
     this.onOk?.emit?.(payload)
     this.onClose()
   }

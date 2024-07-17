@@ -1,4 +1,4 @@
-// Copyright @ 2018-present xiejiahe. All rights reserved. MIT license.
+// Copyright @ 2018-present x.iejiahe. All rights reserved. MIT license.
 // See https://github.com/xjh22222228/nav
 
 import fs from 'fs'
@@ -10,36 +10,64 @@ const internalPath = path.join('.', 'data', 'internal.json')
 const settingsPath = path.join('.', 'data', 'settings.json')
 const tagPath = path.join('.', 'data', 'tag.json')
 
-const internal = JSON.parse(fs.readFileSync(internalPath).toString())
-const db = JSON.parse(fs.readFileSync(dbPath).toString())
-const settings = JSON.parse(fs.readFileSync(settingsPath).toString())
-const tag = JSON.parse(fs.readFileSync(tagPath).toString())
+let internal, db, settings, tags
+try {
+  internal = JSON.parse(fs.readFileSync(internalPath).toString())
+  db = JSON.parse(fs.readFileSync(dbPath).toString())
+  settings = JSON.parse(fs.readFileSync(settingsPath).toString())
+  tags = JSON.parse(fs.readFileSync(tagPath).toString())
+} catch (error) {
+  internal = {}
+  db = []
+  settings = {}
+  tags = []
+}
 
+const TAG_ID1 = -1
+const TAG_ID2 = -2
+const TAG_ID3 = -3
+const TAG_ID_NAME1 = '中文'
+const TAG_ID_NAME2 = '英文'
+const TAG_ID_NAME3 = 'Github'
 {
-  tag['中文'] ||= {
-    color: '#2db7f5',
-    createdAt: '',
-    desc: '系统内置不可删除',
-    isInner: true,
+  if (!Array.isArray(tags)) {
+    tags = []
   }
-  tag['英文'] ||= {
-    color: '#f50',
-    createdAt: '',
-    desc: '系统内置不可删除',
-    isInner: true,
+  const a = tags.some((item) => item.id === TAG_ID1)
+  if (!a) {
+    tags.push({
+      id: TAG_ID1,
+      name: '中文',
+      color: '#2db7f5',
+      createdAt: '',
+      desc: '系统内置不可删除',
+      isInner: true,
+    })
   }
-  tag['Github'] ||= {
-    color: '#108ee9',
-    createdAt: '',
-    desc: '系统内置不可删除',
-    isInner: true,
+  const b = tags.some((item) => item.id === TAG_ID2)
+  if (!b) {
+    tags.push({
+      id: TAG_ID2,
+      name: '英文',
+      color: '#f50',
+      createdAt: '',
+      desc: '系统内置不可删除',
+      isInner: true,
+    })
   }
-  for (let k in tag) {
-    if (!tag[k]?.color) {
-      delete tag[k]
-    }
+  const c = tags.some((item) => item.id === TAG_ID3)
+  if (!c) {
+    tags.push({
+      id: TAG_ID3,
+      name: 'Github',
+      color: '#108ee9',
+      createdAt: '',
+      desc: '系统内置不可删除',
+      isInner: true,
+    })
   }
-  fs.writeFileSync(tagPath, JSON.stringify(tag), {
+  tags = tags.filter((item) => item.name && item.id)
+  fs.writeFileSync(tagPath, JSON.stringify(tags), {
     encoding: 'utf-8',
   })
 }
@@ -57,6 +85,8 @@ const tag = JSON.parse(fs.readFileSync(tagPath).toString())
   settings.homeUrl ??= 'https://nav3.cn'
   settings.language ??= 'zh-CN'
   settings.loading ??= 'random'
+  settings.allowCollect ??= false
+  settings.email ??= ''
   settings.showGithub ??= true
   settings.showLanguage ??= true
   settings.showRate ??= true
@@ -65,15 +95,18 @@ const tag = JSON.parse(fs.readFileSync(tagPath).toString())
   settings.keywords ??=
     '导航,前端资源,社区站点,设计师,实用工具,学习资源,运营,网络安全,node.js'
   settings.theme ??= 'Light'
+  settings.actionUrl ??= ''
   settings.appTheme ??= 'App'
+  settings.openSEO ??= true
   settings.headerContent ??= ''
   settings.footerContent ??=
-    '<div style="font-weight: bold;">共收录${total}个网站</div><div>Copyright © 2018-present nav3.cn, All Rights Reserved</div>'
+    '<div>共收录${total}个网站</div><div>Copyright © 2018-${year} ${hostname}, All Rights Reserved</div>'
   settings.baiduStatisticsUrl ??=
     'https://hm.baidu.com/hm.js?4582be7af7e7c95ef75351e07c6c32ba'
   settings.cnzzStatisticsUrl ??= ''
   settings.showThemeToggle ??= true
   settings.lightCardStyle ||= 'standard'
+  settings.lightOverType ||= 'overflow'
   settings.simThemeImages ||= [
     {
       src: banner1,
@@ -91,11 +124,12 @@ const tag = JSON.parse(fs.readFileSync(tagPath).toString())
   settings.simThemeDesc ||=
     '这里收录多达 <b>${total}</b> 个优质网站， 助您工作、学习和生活'
   settings.simCardStyle ||= 'standard'
-  settings.simCardStyle ||= 'standard'
+  settings.simOverType ||= 'overflow'
   settings.simThemeHeight ??= 0
   settings.simThemeAutoplay ??= true
   settings.simTitle ||= ''
   settings.superCardStyle ||= 'column'
+  settings.superOverType ||= 'overflow'
   // 更名
   if (settings.superCardStyle === 'super') {
     settings.superCardStyle = 'column'
@@ -104,15 +138,21 @@ const tag = JSON.parse(fs.readFileSync(tagPath).toString())
   settings.superTitle ??= ''
   const defImgs = [
     {
+      src: 'https://cdn.jsdelivr.net/gh/xjh22222228/nav-web@image/nav-1717494364392-ad.jpg',
+      url: 'https://haokawx.lot-ml.com/Product/index/454266',
+    },
+    {
       src: 'https://cdn.jsdelivr.net/gh/xjh22222228/public@gh-pages/img/10.png',
       url: '',
-      width: null,
-      height: null,
     },
   ]
   settings.superImages ??= defImgs
+  settings.lightImages ??= defImgs
   if (!Array.isArray(settings.superImages)) {
     settings.superImages = defImgs
+  }
+  if (!Array.isArray(settings.lightImages)) {
+    settings.lightImages = defImgs
   }
   settings.sideTitle ||= ''
   settings.sideCardStyle ||= 'example'
@@ -132,6 +172,7 @@ const tag = JSON.parse(fs.readFileSync(tagPath).toString())
       height: null,
     },
   ]
+  settings.shortcutTitle ??= ''
   settings.shortcutThemeShowWeather ??= true
   settings.shortcutThemeImages ??= [
     {
@@ -142,6 +183,11 @@ const tag = JSON.parse(fs.readFileSync(tagPath).toString())
     },
   ]
   settings.mirrorList ||= []
+  settings.spiderIcon ??= 'NO'
+  settings.spiderDescription ??= 'NO'
+  settings.spiderTitle ??= 'NO'
+  settings.spiderQty ??= 20
+  settings.loadingCode ??= ''
   fs.writeFileSync(settingsPath, JSON.stringify(settings), {
     encoding: 'utf-8',
   })
@@ -232,6 +278,18 @@ function setWeb(nav) {
             const navItemItem = navItem.nav[k]
             removeIconFont(navItemItem)
             formatDate(navItemItem)
+
+            navItemItem.nav.sort((a, b) => {
+              const aIdx =
+                a.index == null || a.index === ''
+                  ? Number.MAX_SAFE_INTEGER
+                  : a.index
+              const bIdx =
+                b.index == null || b.index === ''
+                  ? Number.MAX_SAFE_INTEGER
+                  : b.index
+              return aIdx - bIdx
+            })
             if (navItemItem.nav) {
               for (let l = 0; l < navItemItem.nav.length; l++) {
                 let breadcrumb = []
@@ -256,6 +314,22 @@ function setWeb(nav) {
 
                 delete webItem.__desc__
                 delete webItem.__name__
+
+                // 兼容现有标签,以id为key
+                for (let k in webItem.urls) {
+                  if (k === TAG_ID_NAME1) {
+                    webItem.urls[TAG_ID1] = webItem.urls[k]
+                    delete webItem.urls[TAG_ID_NAME1]
+                  }
+                  if (k === TAG_ID_NAME2) {
+                    webItem.urls[TAG_ID2] = webItem.urls[k]
+                    delete webItem.urls[TAG_ID_NAME2]
+                  }
+                  if (k === TAG_ID_NAME3) {
+                    webItem.urls[TAG_ID3] = webItem.urls[k]
+                    delete webItem.urls[TAG_ID_NAME3]
+                  }
+                }
               }
             }
           }

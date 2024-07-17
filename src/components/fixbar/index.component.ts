@@ -1,4 +1,3 @@
-// @ts-nocheck
 // Copyright @ 2018-present xiejiahe. All rights reserved. MIT license.
 // See https://github.com/xjh22222228/nav
 
@@ -12,8 +11,7 @@ import {
 import { isDark as isDarkFn, randomBgImg, queryString } from 'src/utils'
 import { NzModalService } from 'ng-zorro-antd/modal'
 import { NzMessageService } from 'ng-zorro-antd/message'
-import { NzNotificationService } from 'ng-zorro-antd/notification'
-import { getToken } from 'src/utils/user'
+import { isLogin } from 'src/utils/user'
 import { updateFileContent } from 'src/services'
 import { websiteList, settings } from 'src/store'
 import { DB_PATH, STORAGE_KEY_MAP } from 'src/constants'
@@ -29,8 +27,8 @@ import mitt from 'src/utils/mitt'
 })
 export class FixbarComponent {
   @Input() showCollapse: boolean = true
-  @Input() collapsed: boolean
-  @Input() selector: string
+  @Input() collapsed: boolean = false
+  @Input() selector: string = ''
   @Output() onCollapse = new EventEmitter()
 
   $t = $t
@@ -39,7 +37,7 @@ export class FixbarComponent {
   websiteList = websiteList
   isDark: boolean = isDarkFn()
   syncLoading = false
-  isLogin = !!getToken()
+  isLogin = isLogin
   themeList = [
     {
       name: $t('_switchTo') + ' Super',
@@ -69,7 +67,6 @@ export class FixbarComponent {
 
   constructor(
     private message: NzMessageService,
-    private notification: NzNotificationService,
     private modal: NzModalService,
     private router: Router,
     private activatedRoute: ActivatedRoute
@@ -86,7 +83,7 @@ export class FixbarComponent {
 
   ngOnInit() {}
 
-  toggleTheme(theme) {
+  toggleTheme(theme: any) {
     this.router.navigate([theme.url], {
       queryParams: queryString(),
     })
@@ -119,7 +116,7 @@ export class FixbarComponent {
 
   toggleMode() {
     this.isDark = !this.isDark
-    mitt.emit('dark', this.isDark)
+    mitt.emit('EVENT_DARK', this.isDark)
     window.localStorage.setItem(
       STORAGE_KEY_MAP.isDark,
       String(Number(this.isDark))
@@ -130,7 +127,7 @@ export class FixbarComponent {
       this.removeBackground()
     } else {
       const { data } = this.activatedRoute.snapshot
-      data?.renderLinear && randomBgImg()
+      data['renderLinear'] && randomBgImg()
     }
   }
 
@@ -158,12 +155,6 @@ export class FixbarComponent {
         })
           .then(() => {
             this.message.success($t('_syncSuccessTip'))
-          })
-          .catch((res) => {
-            this.notification.error(
-              `${$t('_error')}: ${res?.response?.status ?? 1401}`,
-              $t('_syncFailTip')
-            )
           })
           .finally(() => {
             this.syncLoading = false

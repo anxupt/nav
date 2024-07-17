@@ -1,26 +1,27 @@
 <nz-layout class="layout">
   <nz-layout>
     <div class="logo dark-bg">
-      <img [src]="LOGO_CDN" />
-      <span class="site-title">{{ settings.sideTitle || title }}</span>
+      <img [src]="LOGO_CDN" class="logo-img" />
+      <span class="web-title">{{ settings.sideTitle || title }}</span>
     </div>
+
     <ul nz-menu nzMode="inline" class="sider dark-scrollbar">
       <li
         nz-submenu
-        *ngFor="let item of websiteList; index as pageIdx"
+        *ngFor="let item of websiteList; index as pageIdx; trackBy: trackByItem"
         (nzOpenChange)="openMenu(item, pageIdx)"
         [nzTitle]="titleTpl"
         [nzOpen]="item['collapsed']"
       >
         <ng-template #titleTpl>
           <img *ngIf="item.icon" class="sideicon" [src]="item.icon" />
-          <span>{{ item.title }}</span>
+          <span class="menu-title ellipsis">{{ item.title }}</span>
         </ng-template>
 
         <ul>
           <li
             nz-menu-item
-            *ngFor="let el of item.nav; let idIdx = index"
+            *ngFor="let el of item.nav; let idIdx = index; trackBy: trackByItem"
             [nzSelected]="page === pageIdx && id === idIdx"
             (click)="handleSidebarNav(pageIdx, idIdx)"
           >
@@ -49,10 +50,11 @@
           [images]="settings.sideThemeImages"
           [autoplay]="settings.sideThemeAutoplay"
           [height]="settings.sideThemeHeight"
-        >
-          <app-search-engine></app-search-engine>
-        </app-swiper>
+        />
+        <app-search-engine class="max768none" />
       </div>
+
+      <app-search-engine class="hidden search-sm mobile-search" />
 
       <nz-content class="content" id="content">
         <app-web-list [search]="false"></app-web-list>
@@ -60,7 +62,11 @@
         <div class="box">
           <div *ngIf="currentList.length > 0; else noData">
             <div
-              *ngFor="let item of currentList.slice(0, sliceMax); let i = index"
+              *ngFor="
+                let item of currentList.slice(0, sliceMax);
+                let i = index;
+                trackBy: trackByItem
+              "
             >
               <div class="nav-wrapper">
                 <app-toolbar-title
@@ -77,7 +83,11 @@
                   [style.display]="item.collapsed ? 'none' : ''"
                 >
                   <div
-                    *ngFor="let el of item.nav.slice(0, sliceMax); index as j"
+                    *ngFor="
+                      let el of item.nav;
+                      index as j;
+                      trackBy: trackByItemWeb
+                    "
                     class="gutter-row"
                     nz-col
                     [nzSpan]="6"
@@ -92,6 +102,8 @@
                       [cardStyle]="settings.sideCardStyle"
                       [dataSource]="el"
                       [indexs]="[page, id, i, j]"
+                      [searchKeyword]="searchKeyword"
+                      class="column-border"
                     ></app-card>
                   </div>
                 </div>

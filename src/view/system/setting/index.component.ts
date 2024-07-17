@@ -1,4 +1,3 @@
-// @ts-nocheck
 // Copyright @ 2018-present xiejiahe. All rights reserved. MIT license.
 // See https://github.com/xjh22222228/nav
 
@@ -6,7 +5,6 @@ import { Component } from '@angular/core'
 import { $t } from 'src/locale'
 import { FormBuilder, FormGroup } from '@angular/forms'
 import { NzMessageService } from 'ng-zorro-antd/message'
-import { NzNotificationService } from 'ng-zorro-antd/notification'
 import { NzModalService } from 'ng-zorro-antd/modal'
 import { SETTING_PATH } from 'src/constants'
 import { updateFileContent } from 'src/services'
@@ -25,7 +23,6 @@ export default class SystemSettingComponent {
 
   constructor(
     private fb: FormBuilder,
-    private notification: NzNotificationService,
     private message: NzMessageService,
     private modal: NzModalService
   ) {
@@ -61,7 +58,8 @@ export default class SystemSettingComponent {
 
   onAddSimBanner() {
     this.settings.simThemeImages.push({
-      ...this.settings.simThemeImages[0],
+      src: '',
+      url: '',
     })
   }
 
@@ -86,7 +84,34 @@ export default class SystemSettingComponent {
 
   onAddSuperBanner() {
     this.settings.superImages.push({
-      ...this.settings.superImages[0],
+      src: '',
+      url: '',
+    })
+  }
+
+  // Light ===========================
+  onLightBannerChange(data: any, idx: number) {
+    this.settings.lightImages[idx]['src'] = data.cdn
+  }
+
+  onChangeLightBannerUrl(e: any, idx: number) {
+    const value = e.target.value.trim()
+    this.settings.lightImages[idx]['src'] = value
+  }
+
+  onChangeLightJumpUrl(e: any, idx: number) {
+    const value = e.target.value.trim()
+    this.settings.lightImages[idx]['url'] = value
+  }
+
+  onDeleteLightBanner(idx: number) {
+    this.settings.lightImages.splice(idx, 1)
+  }
+
+  onAddLightBanner() {
+    this.settings.lightImages.push({
+      src: '',
+      url: '',
     })
   }
 
@@ -111,7 +136,8 @@ export default class SystemSettingComponent {
 
   onAddSideBanner() {
     this.settings.sideThemeImages.push({
-      ...this.settings.sideThemeImages[0],
+      src: '',
+      url: '',
     })
   }
 
@@ -143,9 +169,9 @@ export default class SystemSettingComponent {
   }
 
   onShortcutImgChange(e: any) {
-    const url = e?.target?.value?.trim() || e.cdn
+    let url = e?.target?.value?.trim() || e.cdn
     if (!url) {
-      return
+      url = ''
     }
     this.settings.shortcutThemeImages[0]['src'] = url
   }
@@ -160,13 +186,18 @@ export default class SystemSettingComponent {
       nzOkText: $t('_confirmSync'),
       nzContent: $t('_confirmSyncTip'),
       nzOnOk: () => {
+        function filterImage(item: Record<string, any>) {
+          return item['src']
+        }
         const values = {
           ...this.validateForm.value,
           favicon: this.settings.favicon,
-          simThemeImages: this.settings.simThemeImages,
-          shortcutThemeImages: this.settings.shortcutThemeImages,
-          sideThemeImages: this.settings.sideThemeImages,
-          superImages: this.settings.superImages,
+          simThemeImages: this.settings.simThemeImages.filter(filterImage),
+          shortcutThemeImages:
+            this.settings.shortcutThemeImages.filter(filterImage),
+          sideThemeImages: this.settings.sideThemeImages.filter(filterImage),
+          superImages: this.settings.superImages.filter(filterImage),
+          lightImages: this.settings.lightImages.filter(filterImage),
           mirrorList: this.settings.mirrorList.filter(
             (item) => item['url'] && item['name']
           ),
@@ -180,9 +211,6 @@ export default class SystemSettingComponent {
         })
           .then(() => {
             this.message.success($t('_saveSuccess'))
-          })
-          .catch((res) => {
-            this.notification.error($t('_error'), res.message as string)
           })
           .finally(() => {
             this.submitting = false

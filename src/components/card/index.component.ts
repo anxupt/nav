@@ -1,23 +1,19 @@
-// @ts-nocheck
 // Copyright @ 2018-present xiejiahe. All rights reserved. MIT license.
 // See https://github.com/xjh22222228/nav
 
-import { Component, OnInit, Input, QueryList } from '@angular/core'
+import { Component, OnInit, Input } from '@angular/core'
 import { NzMessageService } from 'ng-zorro-antd/message'
-import { getToken } from 'src/utils/user'
+import { isLogin } from 'src/utils/user'
 import {
   setWebsiteList,
   copyText,
   deleteByWeb,
   getTextContent,
 } from 'src/utils'
-import { INavProps, ITagProp, IWebProps } from 'src/types'
-import * as __tag from '../../../data/tag.json'
+import { INavProps, IWebProps } from 'src/types'
 import { $t } from 'src/locale'
-import { settings, websiteList } from 'src/store'
+import { settings, websiteList, tagMap } from 'src/store'
 import event from 'src/utils/mitt'
-
-const tagMap: ITagProp = (__tag as any).default
 
 @Component({
   selector: 'app-card',
@@ -25,15 +21,16 @@ const tagMap: ITagProp = (__tag as any).default
   styleUrls: ['./index.component.scss'],
 })
 export class CardComponent implements OnInit {
-  @Input() dataSource: IWebProps
-  @Input() indexs: Array<number>
+  @Input() searchKeyword: string = ''
+  @Input() dataSource: IWebProps | Record<string, any> = {}
+  @Input() indexs: Array<number> = []
   @Input() cardStyle: string = 'standard'
 
   $t = $t
   objectKeys = Object.keys
   settings = settings
   websiteList: INavProps[] = websiteList
-  isLogin: boolean = !!getToken()
+  isLogin: boolean = isLogin
   copyUrlDone = false
   copyPathDone = false
   tagMap = tagMap
@@ -42,7 +39,7 @@ export class CardComponent implements OnInit {
 
   ngOnInit(): void {}
 
-  async copyUrl(e, type: number) {
+  async copyUrl(e: Event, type: number) {
     const w = this.dataSource
     const { origin, hash, pathname } = window.location
     const pathUrl = `${origin}${pathname}${hash}?q=${
@@ -62,7 +59,7 @@ export class CardComponent implements OnInit {
     this.copyPathDone = false
   }
 
-  openCreateWebMoal() {
+  openEditWebMoal() {
     event.emit('CREATE_WEB', {
       detail: this.dataSource,
     })
@@ -75,7 +72,7 @@ export class CardComponent implements OnInit {
 
   confirmDel() {
     deleteByWeb({
-      ...this.dataSource,
+      ...(this.dataSource as IWebProps),
       name: getTextContent(this.dataSource.name),
       desc: getTextContent(this.dataSource.desc),
     })

@@ -7,17 +7,71 @@
   bottom: 0;
 }
 
+@media (max-width: 1280px) {
+  .index-wrapper {
+    --width: 800px;
+    --rightWidth: 200px;
+  }
+  .index-wrapper.noimg {
+    --width: 1000px;
+  }
+}
+
+@media (max-width: 1080px) {
+  .index-wrapper {
+    --width: 800px !important;
+  }
+  .right {
+    display: none;
+  }
+}
+
+@media (max-width: 1000px) {
+  .light-box {
+    width: 100% !important;
+  }
+}
+
+@media (max-width: 810px) {
+  .index-wrapper {
+    --top: 0;
+  }
+}
+
 .index-wrapper {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  padding-top: 15px;
+  padding-top: var(--top, 15px);
+  .light-box {
+    display: flex;
+    justify-content: center;
+    height: 100%;
+    margin: 0 auto;
+    column-gap: 20px;
+  }
+  .right {
+    width: var(--rightWidth, 230px);
+    min-width: var(--rightWidth, 230px);
+    max-height: calc(100vh - 50px);
+    overflow: hidden;
+    overflow-y: auto;
+    .adsimg {
+      display: block;
+      width: 100%;
+      border-radius: 4px;
+    }
+    .aditem {
+      margin-bottom: 20px;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+  }
 }
 
 .homepage {
-  width: 1000px;
-  margin: 0 auto;
-  flex: 1;
+  width: var(--width, 1000px);
+  height: 100%;
   position: relative;
   background: rgb(251, 251, 251);
   border-radius: 5px;
@@ -26,23 +80,25 @@
   border: 1px solid transparent;
 
   .top-nav {
-    padding: 10px;
+    padding: 10px 0;
     overflow: none;
     overflow-x: auto;
     white-space: nowrap;
     border-bottom: 1px solid #eee;
     text-align: center;
-    a {
+    user-select: none;
+
+    ::ng-deep .more-btn,
+    .ripple-btn {
+      height: 40px;
       position: relative;
-      display: inline-block;
-      padding: 10px 15px;
+      padding: 0 15px;
       color: #000;
       cursor: pointer;
       border-radius: 5px;
       overflow: hidden;
-      &:hover {
-        text-decoration: none;
-      }
+      display: inline-flex;
+      align-items: center;
       &.active::after {
         content: '';
         position: absolute;
@@ -75,30 +131,24 @@
     .tag {
       position: relative;
       cursor: pointer;
-
+      padding: 11px 0;
       &.active {
         color: #1890ff;
-
-        div:after {
-          top: 0;
-          border-top: 1px dashed #ccc;
-        }
-
-        div:before {
-          bottom: 0;
-          border-bottom: 1px dashed #ccc;
-        }
-      }
-
-      div {
-        display: block;
-        padding: 11px 0;
-        &:after,
-        &:before {
+        &::after,
+        &::before {
           content: '';
           position: absolute;
           left: 0;
           width: 100%;
+        }
+        &:after {
+          top: 0;
+          border-top: 1px dashed #ccc;
+        }
+        &:before {
+          content: '';
+          bottom: 0;
+          border-bottom: 1px dashed #ccc;
         }
       }
     }

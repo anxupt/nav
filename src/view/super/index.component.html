@@ -8,14 +8,27 @@
 
       <div class="topnav dark-scrollbar">
         <div
-          *ngFor="let item of websiteList; index as i"
+          *ngFor="
+            let item of websiteList.slice(0, overIndex);
+            index as i;
+            trackBy: trackByItem
+          "
           (click)="handleCilckTopMenu(i)"
           [class.active]="page === i"
           [class.dark-text-active]="page === i"
-          class="hitem nav-item dark-text"
+          class="hitem over-item dark-text"
         >
           {{ item.title }}
         </div>
+        <!-- More -->
+        <app-web-more-menu
+          *ngIf="overIndex < websiteList.length"
+          [data]="websiteList.slice(overIndex, 9999)"
+          [index]="overIndex"
+          [page]="page"
+          (onClick)="handleCilckTopMenu($event)"
+          class="flex-center"
+        />
       </div>
     </div>
   </header>
@@ -30,7 +43,11 @@
         [class.active]="id === i"
         [class.dark-item-active]="id === i"
         (click)="handleSidebarNav(i)"
-        *ngFor="let item of websiteList[page].nav; index as i"
+        *ngFor="
+          let item of websiteList[page].nav;
+          index as i;
+          trackBy: trackByItem
+        "
       >
         <img *ngIf="item.icon" class="sideicon" [src]="item.icon" />
         <span class="ellipsis">{{ item.title }}</span>
@@ -46,7 +63,7 @@
         <div class="bar dark-scrollbar">
           <div
             class="bar-item"
-            *ngFor="let item of currentList; index as i"
+            *ngFor="let item of currentList; index as i; trackBy: trackByItem"
             [class.active]="selectedIndex === i"
             [class.none]="!item.title"
             (click)="handleCheckThree(i)"
@@ -56,16 +73,35 @@
         </div>
       </div>
 
-      <div *ngIf="currentList[selectedIndex]?.nav; else noData">
+      <div *ngIf="currentList[selectedIndex]?.nav?.length; else noData">
         <app-card
-          *ngFor="let el of currentList[selectedIndex].nav; index as j"
+          *ngFor="
+            let el of currentList[selectedIndex].nav;
+            index as j;
+            trackBy: trackByItemWeb
+          "
+          [indexs]="[page, id, selectedIndex, j]"
           [cardStyle]="settings.superCardStyle"
           [dataSource]="el"
+          [searchKeyword]="searchKeyword"
         ></app-card>
       </div>
       <ng-template #noData>
         <app-no-data></app-no-data>
       </ng-template>
+
+      <div
+        class="apply"
+        *ngIf="
+          currentList.length &&
+          currentList[0].title &&
+          (isLogin || settings.allowCollect)
+        "
+      >
+        <span class="appbtn" (click)="openCreateWebModal()">{{
+          isLogin ? $t('_add') : $t('_apply')
+        }}</span>
+      </div>
     </div>
 
     <div class="right dark-scrollbar" *ngIf="settings.superImages.length > 0">

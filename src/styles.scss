@@ -5,13 +5,6 @@
 @import '../node_modules/ng-zorro-antd/ng-zorro-antd.css';
 @import './assets/ng-zorro-antd.dark.scss';
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  -webkit-tap-highlight-color: transparent;
-}
-
 html {
   -ms-text-size-adjust: 100%;
   -webkit-text-size-adjust: 100%;
@@ -117,6 +110,9 @@ em {
 }
 .ml10 {
   margin-left: 10px;
+}
+.mt10 {
+  margin-top: 10px;
 }
 .mb10 {
   margin-bottom: 10px;
@@ -255,11 +251,39 @@ textarea.ant-input {
 
 .ellipsis2 {
   word-break: break-all;
-  overflow: hidden;
+  overflow: hidden !important;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
 }
-.text-center {
-  text-align: center !important;
+
+.ellipsis3 {
+  word-break: break-all;
+  overflow: hidden !important;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+.display-block {
+  display: block !important;
+}
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.hidden {
+  display: none;
+}
+.height100 {
+  height: 100%;
+}
+@media screen and (max-width: 768px) {
+  .max768none {
+    display: none !important;
+  }
+}
+.color-black {
+  color: #000 !important;
 }

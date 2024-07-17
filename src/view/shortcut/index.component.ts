@@ -1,26 +1,22 @@
-// @ts-nocheck
 // Copyright @ 2018-present xiejiahe. All rights reserved. MIT license.
 
 import { Component } from '@angular/core'
 import { isDark as isDarkFn } from 'src/utils'
 import { settings } from 'src/store'
-import mitt from 'src/utils/mitt'
-
-const { title, shortcutThemeShowWeather, shortcutThemeImages } = settings
+import event from 'src/utils/mitt'
 
 @Component({
   selector: 'app-shortcut',
   templateUrl: './index.component.html',
-  styleUrls: ['./index.component.scss']
+  styleUrls: ['./index.component.scss'],
 })
 export default class ShortcutComponent {
-  title = title
+  settings = settings
   isDark: boolean = isDarkFn()
-  shortcutThemeShowWeather = shortcutThemeShowWeather
-  shortcutThemeImage = shortcutThemeImages[0]['src']
+  shortcutThemeImage = settings.shortcutThemeImages?.[0]?.['src']
 
-  constructor () {
-    mitt.on('dark', (isDark: boolean) => {
+  constructor() {
+    event.on('EVENT_DARK', (isDark: any) => {
       this.isDark = isDark
     })
   }
