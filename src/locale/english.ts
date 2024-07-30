@@ -1,4 +1,6 @@
+// 开源项目MIT，未经作者同意，不得以抄袭/复制代码/修改源代码版权信息，允许商业途径。
 const english: Record<string, string> = {
+  _loading: 'Loading...',
   _webTitle: 'Discovery Navigation',
   _uncategorized: 'Unclassified',
   _modifySuccess: 'Modification succeeded!',
@@ -106,7 +108,7 @@ const english: Record<string, string> = {
   _iconAddr: 'Icon Link',
   _copyUpload: 'Support to paste screenshots or copy pictures here to upload',
   _upload: 'Upload',
-  _continueAdd: 'Continue to add affiliate links',
+  _continueAdd: 'Continue adding associated links or tags',
   _moveTo: 'Move to',
   _move: 'Move',
   _copy: 'Copy',
@@ -119,7 +121,9 @@ const english: Record<string, string> = {
   _systemSet: 'Settings',
   _searchEngines: 'Engines',
   _userCollect: 'Collect',
-  _bookmarkImport: 'Bookmark',
+  _bookmarkImport: 'Book Import',
+  _bookmarkExport: 'Book Export',
+  _vipAuth: 'VIP Auth',
   _tagSettings: 'Tag settings',
   _websiteMang: 'Website',
   _addRow: 'Add',
@@ -197,7 +201,7 @@ const english: Record<string, string> = {
   _defTitle4: 'Default website title, recommended to be within 4 words',
   _inputAuthCode: 'Please enter the authorization code',
   _payTip:
-    'Opening user enrollment requires a payment of ￥99 as a contribution to the stable operation of this website. Thank you for your understanding',
+    'Becoming a VIP allows you to enjoy the full site functionality, and you need to pay ¥99 as a contribution to the stable operation of this site. Thank you for your support',
   _waitHandle: 'Waiting for the stationmaster to handle',
   _collect: 'Get',
   _confirmCollect: 'Are you sure?',
@@ -217,6 +221,9 @@ const english: Record<string, string> = {
     'Due to network factors, some websites may not be accessible and can be skipped directly. For reference only',
   _spiderBuildTip:
     'After the construction is completed, the data is correct. Please go to the website management and click save once, otherwise the data will not be permanently stored',
+  _associatedLabels: 'Labels',
+  _menuCollapse: 'Menu Collapse',
+  _retro: 'Retro',
 }
 
 export default english

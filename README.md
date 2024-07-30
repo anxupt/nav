@@ -26,6 +26,7 @@
 - 🍰 内置 `800+` 优质网站
 - 🍰 支持 [码云 Gitee](https://gitee.com/xiejiahe/nav)
 - 🍰 支持从 Chrome 书签导入
+- 🍰 支持将数据导出到浏览器书签
 - 🍰 支持用户提交收录
 - 🍰 丰富的资源配置系统
 - 🍰 支持 SEO 搜索引擎
@@ -137,7 +138,7 @@ npm run server
 
 ```bash
 git pull
-git remote add upstream https://github.com/xjh22222228/nav.git
+git remote add upstream https://gitee.com/xiejiahe/nav.git
 git fetch upstream main
 git merge upstream/main --allow-unrelated-histories --no-edit
 git push
@@ -200,13 +201,8 @@ Thank you for your [contribution](https://github.com/xjh22222228/nav/issues), me
 <img src="https://cdn.jsdelivr.net/gh/xjh22222228/public@gh-pages/img/32.png" width="600">
 
 感谢您的认可：
-| ID | 支持金额 |
-| --------------------------------------- |----------- |
-| [aiyou9](https://github.com/aiyou9) | ￥ 100 |
-| [lastares](https://github.com/lastares) | ￥ 25.00 |
-| [MrJxySteven](https://github.com/MrJxySteven) | ￥ 20.00 |
-| [admol](https://github.com/admol) | ￥ 6.66 |
-| 路人甲 | ￥ 50.00 |
+
+<img src="https://cdn.jsdelivr.net/gh/xjh22222228/public@gh-pages/nav/thank.png" width="200" />
 
 ## License
 

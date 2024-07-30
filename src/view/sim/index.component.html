@@ -1,4 +1,6 @@
 <div class="sim">
+  <nz-spin nzSimple *ngIf="sliceMax === 0" class="position-center" />
+
   <div
     class="wallpaper"
     *ngIf="settings.simThemeImages.length > 0"
@@ -13,7 +15,10 @@
       <h1 class="title dark-white">
         {{ settings.simTitle || settings.title }}
       </h1>
-      <pre class="description dark-white" [innerHTML]="description"></pre>
+      <pre
+        class="description dark-white"
+        [innerHTML]="description | safeHtml"
+      ></pre>
       <app-search-engine />
     </div>
   </div>
@@ -37,7 +42,7 @@
     <!-- More -->
     <app-web-more-menu
       *ngIf="overIndex < websiteList.length"
-      [data]="websiteList.slice(overIndex, 9999)"
+      [data]="websiteList.slice(overIndex, 99999)"
       [index]="overIndex"
       [page]="page"
       (onClick)="handleCilckTopNav($event)"
@@ -97,7 +102,7 @@
                 *ngFor="let el of item.nav; index as j; trackBy: trackByItemWeb"
               >
                 <app-card
-                  [cardStyle]="'example'"
+                  [cardStyle]="settings.simCardStyle"
                   [dataSource]="el"
                   [indexs]="[page, id, i, j]"
                   [searchKeyword]="searchKeyword"
@@ -116,7 +121,10 @@
   </div>
 </div>
 
-<app-footer className="sim-footer"></app-footer>
+<app-footer
+  className="sim-footer"
+  [content]="settings.simFooterHTML"
+></app-footer>
 <app-fixbar (onCollapse)="onCollapseAll()" [collapsed]="collapsed()">
 </app-fixbar>
 

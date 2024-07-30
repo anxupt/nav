@@ -1,4 +1,6 @@
+// 开源项目MIT，未经作者同意，不得以抄袭/复制代码/修改源代码版权信息，允许商业途径。
 const zhCN: Record<string, string> = {
+  _loading: '加载中...',
   _webTitle: '发现导航',
   _uncategorized: '未分类',
   _modifySuccess: '修改成功！',
@@ -103,7 +105,7 @@ const zhCN: Record<string, string> = {
   _iconAddr: '图标地址',
   _copyUpload: '支持将截图或复制图片粘贴此处上传',
   _upload: '上传',
-  _continueAdd: '继续添加关联链接',
+  _continueAdd: '继续添加关联链接或标签',
   _moveTo: '移动到',
   _move: '移动',
   _copy: '复制',
@@ -117,6 +119,8 @@ const zhCN: Record<string, string> = {
   _searchEngines: '搜索引擎',
   _userCollect: '用户收录',
   _bookmarkImport: '书签导入',
+  _bookmarkExport: '书签导出',
+  _vipAuth: '会员授权',
   _tagSettings: '标签设置',
   _websiteMang: '网站管理',
   _addRow: '新增一条',
@@ -186,7 +190,8 @@ const zhCN: Record<string, string> = {
   _sidebarTitle: '侧栏标题',
   _defTitle4: '默认网站标题, 建议4字以内',
   _inputAuthCode: '请输入授权码',
-  _payTip: '开通用户收录功能需支付 ￥99 作为本站稳定运行的贡献，感谢您的理解',
+  _payTip:
+    '成为VIP可享受全站功能，需支付 ￥99 作为本站稳定运行的贡献，感谢您的支持',
   _waitHandle: '提交成功，等待站长处理',
   _collect: '收录',
   _confirmCollect: '您确定要收录吗？',
@@ -207,6 +212,9 @@ const zhCN: Record<string, string> = {
   _spiderNetTip: '由于网络因素，部分网站可能无法访问直接跳过，仅供参考',
   _spiderBuildTip:
     '构建完成后对数据无误，请到网站管理点击一次保存，否则数据不会永久存储',
+  _associatedLabels: '关联标签',
+  _menuCollapse: '菜单默认收起',
+  _retro: '复古',
 }
 
 export default zhCN

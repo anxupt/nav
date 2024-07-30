@@ -107,6 +107,7 @@ const TAG_ID_NAME3 = 'Github'
   settings.showThemeToggle ??= true
   settings.lightCardStyle ||= 'standard'
   settings.lightOverType ||= 'overflow'
+  settings.lightFooterHTML ||= ''
   settings.simThemeImages ||= [
     {
       src: banner1,
@@ -128,8 +129,10 @@ const TAG_ID_NAME3 = 'Github'
   settings.simThemeHeight ??= 0
   settings.simThemeAutoplay ??= true
   settings.simTitle ||= ''
+  settings.simFooterHTML ||= ''
   settings.superCardStyle ||= 'column'
   settings.superOverType ||= 'overflow'
+  settings.superFooterHTML ||= ''
   // 更名
   if (settings.superCardStyle === 'super') {
     settings.superCardStyle = 'column'
@@ -156,8 +159,10 @@ const TAG_ID_NAME3 = 'Github'
   }
   settings.sideTitle ||= ''
   settings.sideCardStyle ||= 'example'
+  settings.sideFooterHTML ||= ''
   settings.sideThemeHeight ??= 0
   settings.sideThemeAutoplay ??= true
+  settings.sideCollapsed ??= false
   settings.sideThemeImages ||= [
     {
       src: banner2,
@@ -188,6 +193,8 @@ const TAG_ID_NAME3 = 'Github'
   settings.spiderTitle ??= 'NO'
   settings.spiderQty ??= 20
   settings.loadingCode ??= ''
+
+  settings.appCardStyle ??= 'common'
   fs.writeFileSync(settingsPath, JSON.stringify(settings), {
     encoding: 'utf-8',
   })
@@ -314,6 +321,14 @@ function setWeb(nav) {
 
                 delete webItem.__desc__
                 delete webItem.__name__
+
+                // 节省空间
+                if (!webItem.top) {
+                  delete webItem.top
+                }
+                if (!webItem.ownVisible) {
+                  delete webItem.ownVisible
+                }
 
                 // 兼容现有标签,以id为key
                 for (let k in webItem.urls) {
