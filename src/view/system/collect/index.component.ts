@@ -9,7 +9,7 @@ import { NzNotificationService } from 'ng-zorro-antd/notification'
 import { NzModalService } from 'ng-zorro-antd/modal'
 import { websiteList, tagMap } from 'src/store'
 import { setAuthCode, getAuthCode } from 'src/utils/user'
-import { getUserCollect, delUserCollect, updateFileContent } from 'src/services'
+import { getUserCollect, delUserCollect, updateFileContent } from 'src/api'
 import { DB_PATH } from 'src/constants'
 import event from 'src/utils/mitt'
 
@@ -92,6 +92,7 @@ export default class CollectComponent {
         oneIndex,
         twoIndex,
         threeIndex,
+        isMove: true,
       })
       event.emit('SET_CREATE_WEB', {
         detail: null,
